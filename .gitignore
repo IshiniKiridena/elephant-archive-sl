@@ -48,3 +48,9 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Private intake evidence (local dev)
+/.intake-files
+
+# secrets (keep .env.example)
+.env

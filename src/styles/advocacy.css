@@ -1,0 +1,80 @@
+/* Advocacy layer. Import after globals.css. Tokens only, no raw hex. */
+
+/* Quiet zone: no movement at all, colour/border changes only.
+   Set by the (quiet) route group layout: <div data-zone="quiet"> */
+[data-zone="quiet"] *,
+[data-zone="quiet"] *::before,
+[data-zone="quiet"] *::after {
+  animation: none !important;
+  transition-property: color, background-color, border-color, outline-color !important;
+}
+
+/* Data saver: drop decoration */
+html[data-saver="1"] .grain,
+html[data-saver="1"] .herd-anim { display: none; }
+@media (prefers-reduced-data: reduce) {
+  .grain, .herd-anim { display: none; }
+}
+
+/* ── Herd walk ─────────────────────────────────────────── */
+.herd { position: relative; overflow: hidden; height: clamp(120px, 22vw, 200px); }
+.herd svg { color: var(--color-sand); }
+.herd-static { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .herd-anim { display: none; }
+  .herd-static { display: block; }
+}
+html[data-saver="1"] .herd-static { display: block; }
+
+.herd-anim .herd-track {
+  position: absolute; inset-block-end: 0; inset-inline-start: 0;
+  width: max-content;
+  animation: herd-cross 48s linear infinite;
+}
+.herd-anim[data-paused="true"] .herd-track,
+.herd-anim[data-offscreen="true"] .herd-track,
+.herd-anim[data-paused="true"] .leg,
+.herd-anim[data-offscreen="true"] .leg { animation-play-state: paused; }
+@keyframes herd-cross {
+  from { transform: translateX(-40%); }
+  to   { transform: translateX(110vw); }
+}
+.leg { transform-box: fill-box; transform-origin: top center; animation: leg-step 1.6s ease-in-out infinite; }
+.leg.b { animation-delay: -0.8s; }
+@keyframes leg-step {
+  0%, 100% { transform: rotate(5deg); }
+  50% { transform: rotate(-5deg); }
+}
+
+.herd-pause {
+  position: absolute; inset-block-start: 8px; inset-inline-end: 8px;
+  font-size: 0.8125rem; color: var(--color-muted);
+  background: color-mix(in srgb, var(--color-canopy) 70%, transparent);
+  border: 1px solid var(--card-border); border-radius: 999px; padding: 0.25rem 0.75rem;
+}
+.herd-pause:hover { color: var(--color-ivory); border-color: var(--color-sage); }
+
+/* ── Fact flip card ────────────────────────────────────── */
+.fact-card { perspective: 1200px; min-height: 220px; }
+.fact-card .inner {
+  position: relative; height: 100%; min-height: inherit;
+  transform-style: preserve-3d; transition: transform 220ms ease-out;
+}
+.fact-card[data-flipped="true"] .inner { transform: rotateY(180deg); }
+.fact-card .face {
+  position: absolute; inset: 0; backface-visibility: hidden;
+  display: flex; flex-direction: column; gap: 0.75rem; padding: 1.25rem;
+}
+.fact-card .back { transform: rotateY(180deg); }
+@media (prefers-reduced-motion: reduce) {
+  /* No 3D turn: swap faces instead */
+  .fact-card .inner { transform: none !important; }
+  .fact-card .face { backface-visibility: visible; }
+  .fact-card[data-flipped="true"] .front, .fact-card:not([data-flipped="true"]) .back { visibility: hidden; }
+  .fact-card .back { transform: none; }
+}
+
+/* ── Purpose statement ─────────────────────────────────── */
+.purpose { border-inline-start: 2px solid var(--color-sand); padding-inline-start: 1rem; }
+.purpose h2 { color: var(--color-ivory); font-size: 1.25rem; margin-block-end: 0.5rem; }
+.purpose p { color: var(--color-muted); max-width: var(--container-measure); }

@@ -69,6 +69,10 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    'intake-batches': IntakeBatch;
+    'intake-files': IntakeFile;
+    candidates: Candidate;
+    'check-runs': CheckRun;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,13 +82,17 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    'intake-batches': IntakeBatchesSelect<false> | IntakeBatchesSelect<true>;
+    'intake-files': IntakeFilesSelect<false> | IntakeFilesSelect<true>;
+    candidates: CandidatesSelect<false> | CandidatesSelect<true>;
+    'check-runs': CheckRunsSelect<false> | CheckRunsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: string;
+    defaultIDType: number;
   };
   fallbackLocale: null;
   globals: {};
@@ -122,7 +130,9 @@ export interface UserAuthOperations {
  * via the `definition` "users".
  */
 export interface User {
-  id: string;
+  id: number;
+  name?: string | null;
+  roles: ('admin' | 'editor' | 'reviewer' | 'legal')[];
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -148,7 +158,7 @@ export interface User {
  * via the `definition` "media".
  */
 export interface Media {
-  id: string;
+  id: number;
   alt: string;
   updatedAt: string;
   createdAt: string;
@@ -163,11 +173,233 @@ export interface Media {
   focalY?: number | null;
 }
 /**
+ * Paste a post or article, add links, screenshots or files. You don't need to sort anything; the pipeline finds every record in it.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intake-batches".
+ */
+export interface IntakeBatch {
+  id: number;
+  title: string;
+  /**
+   * Paste the post, article text, transcript or your notes. Social posts: paste the text here, links to them often can't be read automatically.
+   */
+  text?: string | null;
+  urls?:
+    | {
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Screenshots, photos of documents, PDF, CSV, TXT. Kept private as evidence, never published.
+   */
+  files?: (number | IntakeFile)[] | null;
+  defaultSourceType?:
+    | ('official' | 'court_record' | 'academic' | 'news' | 'organisation' | 'community' | 'social_media' | 'unverified')
+    | null;
+  /**
+   * Required for offline CSV ingest
+   */
+  hintTarget?:
+    | (
+        | 'source'
+        | 'elephantDeath'
+        | 'elephant'
+        | 'lifeEvent'
+        | 'rescue'
+        | 'courtCase'
+        | 'governmentAction'
+        | 'historyItem'
+        | 'communityStory'
+        | 'fact'
+        | 'humanDeathAggregate'
+      )
+    | null;
+  providedBy?: string | null;
+  notes?: string | null;
+  status?: ('queued' | 'processing' | 'done' | 'failed') | null;
+  log?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intake-files".
+ */
+export interface IntakeFile {
+  id: number;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * Draft records found by the pipeline. Fix findings, confirm labels, approve. Nothing here is public.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "candidates".
+ */
+export interface Candidate {
+  id: number;
+  title?: string | null;
+  target?:
+    | (
+        | 'source'
+        | 'elephantDeath'
+        | 'elephant'
+        | 'lifeEvent'
+        | 'rescue'
+        | 'courtCase'
+        | 'governmentAction'
+        | 'historyItem'
+        | 'communityStory'
+        | 'fact'
+        | 'humanDeathAggregate'
+      )
+    | null;
+  status?:
+    | (
+        | 'extracted'
+        | 'checking'
+        | 'needs_attention'
+        | 'ready_for_review'
+        | 'editor_approved'
+        | 'reviewer_approved'
+        | 'legal_approved'
+        | 'promoted'
+        | 'rejected'
+      )
+    | null;
+  round?: number | null;
+  blockCount?: number | null;
+  warnCount?: number | null;
+  /**
+   * Latest findings from all checks. Blocks must be fixed; warnings must be read.
+   */
+  openFindings?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * What each source check concluded
+   */
+  supportedBy?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  archivedCopies?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * If set, promotion adds sources to this existing record instead of creating one
+   */
+  matchExistingId?: string | null;
+  /**
+   * Edit values here. Any edit sends the record back through all checks and clears approvals. Evidence spans are internal and never published.
+   */
+  proposed?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  suggestedSourceType?:
+    | ('official' | 'court_record' | 'academic' | 'news' | 'organisation' | 'community' | 'social_media' | 'unverified')
+    | null;
+  suggestedVerification?: ('verified' | 'multiple_outlets' | 'single_source' | 'disputed' | 'unverified') | null;
+  /**
+   * Editor confirms
+   */
+  confirmedSourceType?:
+    | ('official' | 'court_record' | 'academic' | 'news' | 'organisation' | 'community' | 'social_media' | 'unverified')
+    | null;
+  /**
+   * Editor confirms. Only a human may choose Verified
+   */
+  confirmedVerification?: ('verified' | 'multiple_outlets' | 'single_source' | 'disputed' | 'unverified') | null;
+  warningsAcknowledged?: boolean | null;
+  lawyerApproved?: boolean | null;
+  reviewNotes?: string | null;
+  rejectionReason?: string | null;
+  /**
+   * Choose and save. Rules are checked on the server.
+   */
+  reviewAction?: ('approve_editor' | 'approve_reviewer' | 'approve_legal' | 'reject') | null;
+  batch?: (number | null) | IntakeBatch;
+  /**
+   * Records from the same intake are linked on promotion
+   */
+  bundleKey?: string | null;
+  localKey?: string | null;
+  editorApprovedBy?: (number | null) | User;
+  reviewerApprovedBy?: (number | null) | User;
+  legalApprovedBy?: (number | null) | User;
+  needsRecheck?: boolean | null;
+  lastCheckedAt?: string | null;
+  /**
+   * collection:id of the draft created
+   */
+  promotedRecord?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "check-runs".
+ */
+export interface CheckRun {
+  id: number;
+  candidate: number | Candidate;
+  round: number;
+  check: 'grounding' | 'dual_read' | 'sources' | 'consistency' | 'rules' | 'pre_promote';
+  result?: ('pass' | 'warn' | 'block' | 'skipped') | null;
+  findings?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  note?: string | null;
+  ranAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: string;
+  id: number;
   key: string;
   data:
     | {
@@ -184,20 +416,36 @@ export interface PayloadKv {
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string;
+  id: number;
   document?:
     | ({
         relationTo: 'users';
-        value: string | User;
+        value: number | User;
       } | null)
     | ({
         relationTo: 'media';
-        value: string | Media;
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'intake-batches';
+        value: number | IntakeBatch;
+      } | null)
+    | ({
+        relationTo: 'intake-files';
+        value: number | IntakeFile;
+      } | null)
+    | ({
+        relationTo: 'candidates';
+        value: number | Candidate;
+      } | null)
+    | ({
+        relationTo: 'check-runs';
+        value: number | CheckRun;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -207,10 +455,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
+  id: number;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   key?: string | null;
   value?:
@@ -230,7 +478,7 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
+  id: number;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
@@ -241,6 +489,8 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  name?: T;
+  roles?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -276,6 +526,98 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intake-batches_select".
+ */
+export interface IntakeBatchesSelect<T extends boolean = true> {
+  title?: T;
+  text?: T;
+  urls?:
+    | T
+    | {
+        url?: T;
+        id?: T;
+      };
+  files?: T;
+  defaultSourceType?: T;
+  hintTarget?: T;
+  providedBy?: T;
+  notes?: T;
+  status?: T;
+  log?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intake-files_select".
+ */
+export interface IntakeFilesSelect<T extends boolean = true> {
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "candidates_select".
+ */
+export interface CandidatesSelect<T extends boolean = true> {
+  title?: T;
+  target?: T;
+  status?: T;
+  round?: T;
+  blockCount?: T;
+  warnCount?: T;
+  openFindings?: T;
+  supportedBy?: T;
+  archivedCopies?: T;
+  matchExistingId?: T;
+  proposed?: T;
+  suggestedSourceType?: T;
+  suggestedVerification?: T;
+  confirmedSourceType?: T;
+  confirmedVerification?: T;
+  warningsAcknowledged?: T;
+  lawyerApproved?: T;
+  reviewNotes?: T;
+  rejectionReason?: T;
+  reviewAction?: T;
+  batch?: T;
+  bundleKey?: T;
+  localKey?: T;
+  editorApprovedBy?: T;
+  reviewerApprovedBy?: T;
+  legalApprovedBy?: T;
+  needsRecheck?: T;
+  lastCheckedAt?: T;
+  promotedRecord?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "check-runs_select".
+ */
+export interface CheckRunsSelect<T extends boolean = true> {
+  candidate?: T;
+  round?: T;
+  check?: T;
+  result?: T;
+  findings?: T;
+  note?: T;
+  ranAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -1,0 +1,120 @@
+/* Elephant Archive Sri Lanka — brand tokens (Tailwind v4)
+ * Palette confirmed 2026-11-02. Dark-first. Never use raw hex in components.
+ * Contrast notes: see design/ui-inspiration-elephantvoices.md §5 (Project docs).
+ */
+@import "tailwindcss";
+
+@theme {
+  /* Palette */
+  --color-canopy: #111b1a;   /* Midnight Canopy — page background */
+  --color-umber: #211a16;    /* Elephant Umber — signature brand; footer, sensitive-page header band */
+  --color-surface: #1b2926;  /* Elevated Surface — cards, panels, sections */
+  --color-forest: #24463a;   /* Forest Green — primary brand */
+  --color-sage: #7fa18a;     /* Sage Green — accents, interactive states, focus */
+  --color-slate: #344b50;    /* Slate Blue — secondary support */
+  --color-sand: #d8c8a5;     /* Archive Sand — heritage details, borders, logo accents */
+  --color-ivory: #f1f0e7;    /* Warm Ivory — main text */
+  --color-muted: #b8c5bd;    /* Muted Text — secondary text, metadata */
+
+  /* Rhythm */
+  --radius-card: 12px;
+  --spacing-gutter: 16px;
+  --container-measure: 68ch;
+
+  /* Fonts: Latin first, then Sinhala / Tamil fallbacks (loaded via next/font in the locale layout) */
+  --font-sans: var(--font-latin, ui-sans-serif), var(--font-sinhala, "Noto Sans Sinhala"),
+    var(--font-tamil, "Noto Sans Tamil"), system-ui, sans-serif;
+}
+
+/* Semantic aliases for non-Tailwind use (charts, inline SVG, chip colours) */
+:root {
+  color-scheme: dark;
+  --bg: var(--color-canopy);
+  --text: var(--color-ivory);
+  --text-secondary: var(--color-muted);
+  --card: var(--color-surface);
+  --card-border: color-mix(in srgb, var(--color-sand) 20%, transparent);
+  --action: var(--color-forest);
+  --accent: var(--color-sage);
+  --heritage: var(--color-sand);
+  --focus: var(--color-sage);
+}
+
+@layer base {
+  html {
+    background: var(--color-canopy);
+    color: var(--color-ivory);
+    line-height: 1.6;
+    font-family: var(--font-sans);
+  }
+
+  body {
+    background: var(--color-canopy);
+    min-height: 100dvh;
+  }
+
+  /* Sinhala and Tamil scripts need more vertical room */
+  :lang(si),
+  :lang(ta) {
+    line-height: 1.75;
+    font-size: 1.0625em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-sage);
+    outline-offset: 2px;
+  }
+
+  a {
+    color: var(--color-sand);
+    text-underline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Surface vs canopy is only 1.16:1, so cards always carry a border */
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-card);
+  }
+  .card:is(:hover, :focus-within) {
+    border-color: var(--color-sage);
+  }
+
+  /* Forest vs canopy is 1.68:1 — the sage border gives the button a visible edge */
+  .btn-primary {
+    background: var(--color-forest);
+    color: var(--color-ivory);
+    border: 1px solid var(--color-sage);
+    border-radius: 999px;
+    padding: 0.5rem 1.125rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .btn-primary:hover {
+    background: var(--color-sage);
+    color: var(--color-canopy);
+  }
+
+  /* Plain header band for Deaths and Court Cases pages: no photo, no motion */
+  .band-sensitive {
+    background: var(--color-umber);
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  .prose-measure {
+    max-width: var(--container-measure);
+  }
+}

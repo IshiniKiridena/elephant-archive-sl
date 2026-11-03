@@ -1,20 +1,17 @@
-import { test, expect, Page } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 
 test.describe('Frontend', () => {
-  let page: Page
-
-  test.beforeAll(async ({ browser }, testInfo) => {
-    const context = await browser.newContext()
-    page = await context.newPage()
+  test('root redirects to a locale and renders the home page', async ({ page }) => {
+    await page.goto('http://localhost:3000/')
+    await expect(page).toHaveURL(/\/(si|ta|en)$/)
+    await expect(page).toHaveTitle(/Elephant Archive Sri Lanka/)
+    await expect(page.locator('html')).toHaveAttribute('lang', /^(si|ta|en)$/)
   })
 
-  test('can go on homepage', async ({ page }) => {
-    await page.goto('http://localhost:3000')
-
-    await expect(page).toHaveTitle(/Payload Blank Template/)
-
-    const heading = page.locator('h1').first()
-
-    await expect(heading).toHaveText('Welcome to your new project.')
+  test('each locale renders with its lang attribute', async ({ page }) => {
+    for (const locale of ['si', 'ta', 'en']) {
+      await page.goto(`http://localhost:3000/${locale}`)
+      await expect(page.locator('html')).toHaveAttribute('lang', locale)
+    }
   })
 })
