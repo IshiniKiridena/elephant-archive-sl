@@ -67,12 +67,15 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    users: User;
+    sources: Source;
     media: Media;
+    districts: District;
     'intake-batches': IntakeBatch;
     'intake-files': IntakeFile;
     candidates: Candidate;
     'check-runs': CheckRun;
+    users: User;
+    'audit-log': AuditLog;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,12 +83,15 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
+    sources: SourcesSelect<false> | SourcesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    districts: DistrictsSelect<false> | DistrictsSelect<true>;
     'intake-batches': IntakeBatchesSelect<false> | IntakeBatchesSelect<true>;
     'intake-files': IntakeFilesSelect<false> | IntakeFilesSelect<true>;
     candidates: CandidatesSelect<false> | CandidatesSelect<true>;
     'check-runs': CheckRunsSelect<false> | CheckRunsSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
+    'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -94,10 +100,10 @@ export interface Config {
   db: {
     defaultIDType: number;
   };
-  fallbackLocale: null;
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('si' | 'ta' | 'en') | ('si' | 'ta' | 'en')[];
   globals: {};
   globalsSelect: {};
-  locale: null;
+  locale: 'si' | 'ta' | 'en';
   widgets: {
     collections: CollectionsWidget;
   };
@@ -126,32 +132,56 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Articles, documents, posts and records the archive cites. Titles and links only, never copied text.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
+ * via the `definition` "sources".
  */
-export interface User {
+export interface Source {
   id: number;
-  name?: string | null;
-  roles: ('admin' | 'editor' | 'reviewer' | 'legal')[];
+  /**
+   * Title as published, in its original language
+   */
+  title: string;
+  /**
+   * Outlet, agency, court or account
+   */
+  publisher?: string | null;
+  /**
+   * Only as precise as the source
+   */
+  date?: string | null;
+  /**
+   * Leave empty for print or offline sources
+   */
+  url?: string | null;
+  /**
+   * Wayback Machine or other saved copy, in case the original disappears
+   */
+  archiveUrl?: string | null;
+  language?: ('si' | 'ta' | 'en' | 'other') | null;
+  /**
+   * The strongest source type among this record's sources
+   */
+  sourceType?:
+    | ('official' | 'court_record' | 'academic' | 'news' | 'organisation' | 'community' | 'social_media' | 'unverified')
+    | null;
+  /**
+   * Only a person may choose Verified
+   */
+  verificationStatus?: ('verified' | 'multiple_outlets' | 'single_source' | 'disputed' | 'unverified') | null;
+  linkStatus?: ('live' | 'removed' | 'unreachable' | 'corrected') | null;
+  /**
+   * When someone last confirmed the link
+   */
+  accessedAt?: string | null;
+  /**
+   * Internal notes in your own words. Not public.
+   */
+  notes?: string | null;
   updatedAt: string;
   createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  resetPasswordRequestedAt?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -159,9 +189,43 @@ export interface User {
  */
 export interface Media {
   id: number;
+  /**
+   * Describe what is in the picture for someone who can't see it. Calm, no graphic detail.
+   */
   alt: string;
+  caption?: string | null;
+  /**
+   * Photographer / owner, as they want to be credited
+   */
+  credit?: string | null;
+  licence?: ('own' | 'permission' | 'cc_by' | 'cc_by_sa' | 'public_domain' | 'unknown') | null;
+  permission?: ('not_requested' | 'requested' | 'granted' | 'not_needed' | 'refused') | null;
+  /**
+   * Who gave permission, when, how (email/WhatsApp). Not public.
+   */
+  permissionNote?: string | null;
+  /**
+   * Where the original came from
+   */
+  sourceUrl?: string | null;
+  /**
+   * Permission also covers share cards and social posts
+   */
+  shareAllowed?: boolean | null;
+  /**
+   * Distressing content (e.g. an injury). Never shown on Quiet pages or share cards. Images of remains are not uploaded at all.
+   */
+  sensitive?: boolean | null;
+  /**
+   * Sinhala and Tamil text must be approved by a native speaker
+   */
+  translationReview?: {
+    si?: ('missing' | 'needs_review' | 'approved') | null;
+    ta?: ('missing' | 'needs_review' | 'approved') | null;
+  };
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
   url?: string | null;
   thumbnailURL?: string | null;
   filename?: string | null;
@@ -171,6 +235,52 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    wide?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "districts".
+ */
+export interface District {
+  id: number;
+  name: string;
+  slug: string;
+  province:
+    | 'western'
+    | 'central'
+    | 'southern'
+    | 'northern'
+    | 'eastern'
+    | 'north_western'
+    | 'north_central'
+    | 'uva'
+    | 'sabaragamuwa';
+  /**
+   * Sinhala and Tamil text must be approved by a native speaker
+   */
+  translationReview?: {
+    si?: ('missing' | 'needs_review' | 'approved') | null;
+    ta?: ('missing' | 'needs_review' | 'approved') | null;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * Paste a post or article, add links, screenshots or files. You don't need to sort anything; the pipeline finds every record in it.
@@ -372,6 +482,34 @@ export interface Candidate {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  name?: string | null;
+  roles: ('admin' | 'editor' | 'reviewer' | 'legal')[];
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "check-runs".
  */
 export interface CheckRun {
@@ -391,6 +529,33 @@ export interface CheckRun {
     | null;
   note?: string | null;
   ranAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Append-only record of changes to archive content
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "audit-log".
+ */
+export interface AuditLog {
+  id: number;
+  action: 'create' | 'update' | 'publish' | 'delete';
+  collectionSlug: string;
+  docId: string;
+  /**
+   * Empty = the pipeline or a script
+   */
+  user?: (number | null) | User;
+  changedFields?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -419,12 +584,16 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'users';
-        value: number | User;
+        relationTo: 'sources';
+        value: number | Source;
       } | null)
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'districts';
+        value: number | District;
       } | null)
     | ({
         relationTo: 'intake-batches';
@@ -441,6 +610,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'check-runs';
         value: number | CheckRun;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null)
+    | ({
+        relationTo: 'audit-log';
+        value: number | AuditLog;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -486,28 +663,23 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
+ * via the `definition` "sources_select".
  */
-export interface UsersSelect<T extends boolean = true> {
-  name?: T;
-  roles?: T;
+export interface SourcesSelect<T extends boolean = true> {
+  title?: T;
+  publisher?: T;
+  date?: T;
+  url?: T;
+  archiveUrl?: T;
+  language?: T;
+  sourceType?: T;
+  verificationStatus?: T;
+  linkStatus?: T;
+  accessedAt?: T;
+  notes?: T;
   updatedAt?: T;
   createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  resetPasswordRequestedAt?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
-  sessions?:
-    | T
-    | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
-      };
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -515,8 +687,23 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  caption?: T;
+  credit?: T;
+  licence?: T;
+  permission?: T;
+  permissionNote?: T;
+  sourceUrl?: T;
+  shareAllowed?: T;
+  sensitive?: T;
+  translationReview?:
+    | T
+    | {
+        si?: T;
+        ta?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
   url?: T;
   thumbnailURL?: T;
   filename?: T;
@@ -526,6 +713,47 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        wide?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "districts_select".
+ */
+export interface DistrictsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  province?: T;
+  translationReview?:
+    | T
+    | {
+        si?: T;
+        ta?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -616,6 +844,44 @@ export interface CheckRunsSelect<T extends boolean = true> {
   findings?: T;
   note?: T;
   ranAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users_select".
+ */
+export interface UsersSelect<T extends boolean = true> {
+  name?: T;
+  roles?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  resetPasswordRequestedAt?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "audit-log_select".
+ */
+export interface AuditLogSelect<T extends boolean = true> {
+  action?: T;
+  collectionSlug?: T;
+  docId?: T;
+  user?: T;
+  changedFields?: T;
   updatedAt?: T;
   createdAt?: T;
 }

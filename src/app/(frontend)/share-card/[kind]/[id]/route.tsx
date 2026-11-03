@@ -53,7 +53,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ kind: st
   const res = await payload.find({
     collection: collection as never,
     where: { and: [{ id: { equals: id } }, { _status: { equals: "published" } }] },
-    // TODO(core collections step): pass `locale` once Payload localization (si/ta/en) is configured
+    locale,
     depth: 1,
     limit: 1,
   });

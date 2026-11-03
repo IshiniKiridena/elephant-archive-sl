@@ -16,6 +16,12 @@ pnpm install
 pnpm dev                          # http://localhost:3000 → redirects to /si, /ta or /en
 ```
 
+Then fill the 25 districts (English names; Sinhala/Tamil are added in the admin and reviewed):
+
+```bash
+pnpm seed:districts
+```
+
 Open http://localhost:3000/admin and create the first account: it becomes **admin** automatically. Add the other people (editor, reviewer, legal reviewer) from **Admin → Users**. Every record needs approval from two different people.
 
 ## Add data (fact-check pipeline)
@@ -33,6 +39,7 @@ Model calls use your **Claude Pro/Max plan** through Claude Code (`claude` → `
 |---|---|
 | `pnpm dev` | Dev server |
 | `pnpm ingest` | Run the pipeline (new batches, re-checks, promotions) |
+| `pnpm seed:districts` | Create the 25 districts (safe to re-run) |
 | `pnpm test:checks` | Unit tests for the fact-check rules |
 | `pnpm typecheck` | TypeScript check |
 | `pnpm generate:types` | Regenerate `src/payload-types.ts` after changing collections |
@@ -47,7 +54,8 @@ src/
     (quiet)/                        deaths, causes, court cases, remembered: no motion
   app/(frontend)/share-card/…       share images with labels + source printed on them
   app/(payload)/                    Payload admin + API
-  collections/                      Payload collections (Users, Media, pipeline)
+  collections/                      Sources, Media, Districts, pipeline, Users, AuditLog
+  fields/                           shared fields: two labels + sources + translation review, loose dates
   pipeline/                         ingest + five fact checks (rules.ts is pure and unit-tested)
   components/  i18n/  styles/  access/  lib/
 scripts/ingest.ts                   the one pipeline command
@@ -58,7 +66,8 @@ templates/                          CSV templates for offline ingest
 
 - [x] Scaffold, brand tokens, trilingual routing, Bright/Quiet zones
 - [x] Users with roles, pipeline collections, approval rules (tested end to end on Postgres)
-- [ ] Core collections: Sources, Media fields, Districts, shared label fields, audit log, Payload localization
+- [x] Core collections: Sources, Media (credit, permission, alt text, GPS stripped), Districts, shared label fields, audit log, si/ta/en content
+- [x] Pipeline round 3: approved candidates become linked drafts (tested with Sources)
 - [ ] Base components: SiteHeader, MegaMenu, SourcesPanel, DataLimits, LegalNotice, PageToc, ReadMore
 - [ ] Cloudinary (private intake storage), revalidation hook, nightly backup, favicons/PWA icons
 - [ ] Exit check: one real article → three check rounds → two approvals → draft renders in si/ta/en

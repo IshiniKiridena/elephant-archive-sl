@@ -18,7 +18,8 @@
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
     "ingest": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/ingest.ts",
     "test:checks": "tsx src/pipeline/__tests__/checks.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "seed:districts": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/seed-districts.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.92.1",
@@ -59,7 +60,7 @@
   },
   "engines": {
     "node": "^22.23.4 || >=24.22.1",
-    "pnpm": "^9 || ^10 || ^11"
+    "pnpm": "^10"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -68,5 +69,6 @@
       "unrs-resolver"
     ]
   },
-  "private": true
+  "private": true,
+  "packageManager": "pnpm@10.28.0"
 }

@@ -54,6 +54,12 @@ export async function promoteApproved(payload: Payload, opts: { online: boolean 
       continue;
     }
 
+    // The target collection may belong to a later phase
+    if (!payload.collections[slug(TARGET_SPECS[c.target].collection)]) {
+      report.push(`#${c.id} waits: the "${TARGET_SPECS[c.target].collection}" collection isn't built yet`);
+      continue;
+    }
+
     // Round 3
     const { blocks } = await checkCandidate(payload, c.id, 3, opts, [], "pre_promote");
     if (blocks) {
@@ -70,7 +76,13 @@ export async function promoteApproved(payload: Payload, opts: { online: boolean 
   return report;
 }
 
-async function upsertSource(payload: Payload, s: ProposedSource, archived?: Record<string, string>) {
+/** "2024-03-10T08:00:00Z" → "2024-03-10"; keeps YYYY / YYYY-MM; drops anything unparseable. */
+const looseDate = (d?: string) => {
+  const m = d?.trim().match(/^(\d{4})(-\d{2})?(-\d{2})?/);
+  return m ? m[0] : undefined;
+};
+
+async function upsertSource(payload: Payload, s: ProposedSource, archived?: Record<string, string>, confirmedType?: string) {
   if (s.url) {
     const hit = await payload.find({ collection: slug("sources"), where: { url: { equals: s.url } }, limit: 1, depth: 0, draft: true });
     if (hit.docs[0]) return hit.docs[0].id;
@@ -82,8 +94,8 @@ async function upsertSource(payload: Payload, s: ProposedSource, archived?: Reco
       url: s.url,
       title: s.title ?? s.url ?? "Untitled source",
       publisher: s.publisher,
-      date: s.date,
-      sourceType: s.sourceType,
+      date: looseDate(s.date),
+      sourceType: confirmedType ?? s.sourceType,
       archiveUrl: s.url ? archived?.[s.url] : undefined,
       _status: "draft",
     } as never,
@@ -96,7 +108,20 @@ async function createDraft(payload: Payload, c: Cand, siblings: Cand[]): Promise
   const r = c.proposed;
 
   if (c.target === "source") {
-    const id = await upsertSource(payload, r.sources[0] ?? { sourceType: "unverified", title: String(r.fields.title?.value ?? "") }, c.archivedCopies);
+    // A "source" record's details live in its fields; its sources[] (if any) may add the type
+    const f = (k: string) => (r.fields[k]?.value == null ? undefined : String(r.fields[k]!.value));
+    const id = await upsertSource(
+      payload,
+      {
+        url: f("url") ?? r.sources[0]?.url,
+        title: f("title") ?? r.sources[0]?.title,
+        publisher: f("publisher") ?? r.sources[0]?.publisher,
+        date: f("date") ?? r.sources[0]?.date,
+        sourceType: r.sources[0]?.sourceType ?? "unverified",
+      },
+      c.archivedCopies,
+      c.confirmedSourceType,
+    );
     return `sources:${id}`;
   }
 

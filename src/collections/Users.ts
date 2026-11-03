@@ -1,3 +1,4 @@
+import { auditChange, auditDelete } from "./AuditLog";
 import type { CollectionConfig, FieldAccess } from "payload";
 import { adminsOnly, hasRole } from "../access/roles";
 
@@ -26,6 +27,8 @@ export const Users: CollectionConfig = {
     delete: adminsOnly,
   },
   hooks: {
+    afterChange: [auditChange],
+    afterDelete: [auditDelete],
     beforeChange: [
       async ({ data, operation, req }) => {
         if (operation !== "create") return data;

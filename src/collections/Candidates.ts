@@ -1,6 +1,7 @@
 import { APIError, type CollectionBeforeChangeHook, type CollectionConfig } from "payload";
 import { adminsOnly, hasRole, legalField, staff } from "../access/roles";
 import { TARGET_SPECS } from "../pipeline/targets"; // no LLM/fetch code is pulled into the app bundle
+import { auditChange, auditDelete } from "./AuditLog";
 import { SOURCE_TYPES, TARGETS, VERIFICATION, type Target } from "../pipeline/types";
 
 const needsLegal = (t: Target) => !!TARGET_SPECS[t]?.legalReview;
@@ -96,7 +97,7 @@ export const Candidates: CollectionConfig = {
     description: "Draft records found by the pipeline. Fix findings, confirm labels, approve. Nothing here is public.",
   },
   access: { read: staff, create: () => false, update: staff, delete: adminsOnly },
-  hooks: { beforeChange: [guard] },
+  hooks: { beforeChange: [guard], afterChange: [auditChange], afterDelete: [auditDelete] },
   fields: [
     { name: "title", type: "text", admin: readOnly },
     {
