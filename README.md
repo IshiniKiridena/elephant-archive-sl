@@ -67,8 +67,9 @@ templates/                          CSV templates for offline ingest
 
 - [x] Scaffold, brand tokens, trilingual routing, Bright/Quiet zones
 - [x] Users with roles, pipeline collections, approval rules (tested end to end on Postgres)
-- [x] Core collections: Sources, Media (credit, permission, alt text, GPS stripped), Districts, shared label fields, audit log, si/ta/en content
+- [x] Core collections: Sources, Media (credit, permission, alt text), Districts, shared label fields, audit log, si/ta/en content
 - [x] Pipeline round 3: approved candidates become linked drafts (tested with Sources)
 - [ ] Base components: SiteHeader, MegaMenu, SourcesPanel, DataLimits, LegalNotice, PageToc, ReadMore
-- [ ] Cloudinary (private intake storage), revalidation hook, nightly backup, favicons/PWA icons
+- [x] Cloudinary: public media (f_auto,q_auto) and private intake files (admin-only signed links), EXIF/GPS stripped
+- [ ] Revalidation hook, nightly backup, favicons/PWA icons
 - [ ] Exit check: one real article → three check rounds → two approvals → draft renders in si/ta/en

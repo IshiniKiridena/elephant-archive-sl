@@ -2,26 +2,25 @@ import { auditChange, auditDelete } from "./AuditLog";
 import type { CollectionConfig } from "payload";
 import { adminsOnly, staff } from "../access/roles";
 import { publishedOrStaff, translationReviewField } from "../fields/evidence";
+import { stripUploadMetadata } from "../storage/strip-metadata";
 
 /**
  * Photos and short clips shown on the site (long video goes to YouTube; see tech-stack.md).
- * Rule 7: every image records credit and permission before it can be published.
- * No EXIF location is kept: GPS metadata in a photo would leak an exact location (rule 4),
- * so uploads are re-encoded without metadata.
+ * Rule 6: every image records credit and permission before it can be published.
+ * No EXIF location is kept: GPS metadata in a photo would leak an exact location (rule 5).
+ * `stripUploadMetadata` re-encodes every image before it is stored (Payload's `withMetadata`
+ * alone does not touch the original), and refuses videos that carry GPS.
+ * Stored on Cloudinary in production; sizes are made on delivery by the next/image loader.
  */
 export const Media: CollectionConfig = {
   slug: "media",
   admin: { useAsTitle: "alt", defaultColumns: ["filename", "alt", "credit", "permission", "_status"], group: "Archive" },
-  hooks: { afterChange: [auditChange], afterDelete: [auditDelete] },
+  hooks: { beforeOperation: [stripUploadMetadata], afterChange: [auditChange], afterDelete: [auditDelete] },
   versions: { drafts: true },
   access: { read: publishedOrStaff, create: staff, update: staff, delete: adminsOnly },
   upload: {
     mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/avif", "video/mp4", "video/webm"],
-    withMetadata: false, // strip EXIF (incl. GPS) when Payload processes images
-    imageSizes: [
-      { name: "card", width: 640 },
-      { name: "wide", width: 1280 },
-    ],
+    withMetadata: false, // belt and braces for anything Payload re-encodes itself
   },
   fields: [
     {

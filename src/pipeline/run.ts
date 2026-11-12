@@ -2,6 +2,8 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { Payload } from "payload";
 import { INTAKE_DIR } from "../collections/IntakeBatches";
+import { cloudinaryFromEnv } from "../storage/cloudinary-env";
+import { signIntakeUrl, type StoredAsset } from "../storage/cloudinary-urls";
 import { extract } from "./llm";
 import { UsageLimitError } from "./claude-cli";
 import { mergeDualRead } from "./dualread";
@@ -25,15 +27,24 @@ type Batch = {
   title: string;
   text?: string;
   urls?: { url: string }[];
-  files?: { url?: string; filename?: string; mimeType?: string }[];
+  files?: ({ url?: string; filename?: string; mimeType?: string } & StoredAsset)[];
   defaultSourceType?: SourceType;
   hintTarget?: Target;
 };
 
 // ─── COLLECT ────────────────────────────────────────────────────────────────
 
-/** Intake files are private evidence: read from local storage, or from cloud storage by absolute URL. */
-async function readIntakeFile(f: { url?: string; filename?: string }): Promise<Buffer> {
+/**
+ * Intake files are private evidence. On Cloudinary they are fetched through a short-lived signed
+ * link made here with the local API secret (the pipeline runs locally only); otherwise from disk.
+ */
+async function readIntakeFile(f: { url?: string; filename?: string } & StoredAsset): Promise<Buffer> {
+  if (f.cloudinaryPublicId) {
+    if (!cloudinaryFromEnv()) throw new Error(`Intake file ${f.filename} is on Cloudinary: set CLOUDINARY_* in .env`);
+    const res = await fetch(signIntakeUrl(f, { ttlSeconds: 120 }).url, { signal: AbortSignal.timeout(30_000) });
+    if (!res.ok) throw new Error(`Could not download ${f.filename} from Cloudinary: HTTP ${res.status}`);
+    return Buffer.from(await res.arrayBuffer());
+  }
   if (f.filename) {
     try {
       return await readFile(path.join(INTAKE_DIR, path.basename(f.filename)));
@@ -73,7 +84,7 @@ async function buildInput(batch: Batch, offline: boolean): Promise<{ input: Inta
   }
 
   for (const f of batch.files ?? []) {
-    if (!f.url && !f.filename) continue;
+    if (!f.url && !f.filename && !f.cloudinaryPublicId) continue;
     const buf = await readIntakeFile(f);
     const type = f.mimeType ?? "";
     if (type.startsWith("image/")) {
