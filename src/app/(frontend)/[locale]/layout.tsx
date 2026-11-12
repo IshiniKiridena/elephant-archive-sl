@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Noto_Sans, Noto_Sans_Sinhala, Noto_Sans_Tamil } from "next/font/google";
 import type { ReactNode } from "react";
 import { LOCALES, isLocale } from "@/i18n/config";
-import { getDictionary } from "@/i18n/dictionaries";
+import { getMessages } from "@/i18n/get-messages";
 import { PurposeStatement } from "@/components/advocacy/PurposeStatement";
 import "@/styles/globals.css";
 import "@/styles/advocacy.css";
@@ -23,7 +23,7 @@ export const generateStaticParams = () => LOCALES.map((locale) => ({ locale }));
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  const t = getDictionary(locale);
+  const t = getMessages(locale);
   return {
     title: { default: t.siteName, template: `%s · ${t.siteName}` },
     description: t.tagline,
@@ -37,7 +37,7 @@ const SAVE_DATA_SCRIPT = `try{if(navigator.connection&&navigator.connection.save
 export default async function LocaleLayout({ children, params }: { children: ReactNode; params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const t = getDictionary(locale);
+  const t = getMessages(locale);
 
   return (
     <html lang={locale} className={`${latin.variable} ${sinhala.variable} ${tamil.variable}`}>
@@ -49,7 +49,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         {children}
         <footer className="mt-16 bg-umber px-4 py-10">
           <div className="mx-auto flex max-w-5xl flex-col gap-3">
-            <PurposeStatement locale={locale} variant="short" />
+            <PurposeStatement locale={locale} variant="short" shownInEnglish={t.translation.shownInEnglish} />
             <p className="text-sm text-muted">{t.footer.legal}</p>
           </div>
         </footer>

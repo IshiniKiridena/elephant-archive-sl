@@ -19,26 +19,15 @@ export const TARGETS = [
 ] as const;
 export type Target = (typeof TARGETS)[number];
 
-export const SOURCE_TYPES = [
-  "official",
-  "court_record",
-  "academic",
-  "news",
-  "organisation",
-  "community",
-  "social_media",
-  "unverified",
-] as const;
-export type SourceType = (typeof SOURCE_TYPES)[number];
+import type { SourceType } from "../lib/evidence-labels";
 
-export const VERIFICATION = [
-  "verified", // human-only
-  "multiple_outlets",
-  "single_source",
-  "disputed",
-  "unverified",
-] as const;
-export type Verification = (typeof VERIFICATION)[number];
+// Defined once in lib/evidence-labels.ts (shared with evidenceFields() and the UI chips)
+export {
+  SOURCE_TYPES,
+  VERIFICATION_STATUSES as VERIFICATION,
+  type SourceType,
+  type VerificationStatus as Verification,
+} from "../lib/evidence-labels";
 
 export type Severity = "pass" | "warn" | "block";
 

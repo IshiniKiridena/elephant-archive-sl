@@ -1,7 +1,7 @@
 import type { CollectionSlug, Payload } from "payload";
 import { checkCandidate, needsLegal, PIPELINE_CTX } from "./run";
 import { TARGET_SPECS, normaliseDistrict } from "./targets";
-import { hasSinhalaOrTamil } from "./rules";
+import { hasSinhala, hasTamil } from "./rules";
 import type { ProposedRecord, ProposedSource, Target } from "./types";
 
 /**
@@ -9,7 +9,8 @@ import type { ProposedRecord, ProposedSource, Target } from "./types";
  * DRAFTS in their collections. A human publishes each draft in the admin.
  *
  * Assumes every target collection (Phase 0 core schema) has: drafts enabled,
- * `sources` (hasMany → sources), `sourceType`, `verificationStatus`, `needsNativeReview`.
+ * `sources` (hasMany → sources), `sourceType`, `verificationStatus`, `translationReview`
+ * (all from evidenceFields()).
  */
 
 type Cand = {
@@ -150,7 +151,11 @@ async function createDraft(payload: Payload, c: Cand, siblings: Cand[]): Promise
   const labels = {
     sourceType: c.confirmedSourceType,
     verificationStatus: c.confirmedVerification,
-    needsNativeReview: hasSinhalaOrTamil(r),
+    // Pipeline-written si/ta text is never native-approved (rule 9); a person approves it later
+    translationReview: {
+      si: hasSinhala(r) ? "needs_review" : "missing",
+      ta: hasTamil(r) ? "needs_review" : "missing",
+    },
   };
 
   // Same record already exists → add sources (as a draft revision), never overwrite values

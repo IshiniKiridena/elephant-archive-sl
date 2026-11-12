@@ -1,6 +1,6 @@
 import type { Access, Field, FieldAccess } from "payload";
 import { hasRole } from "../access/roles";
-import { SOURCE_TYPES, VERIFICATION } from "../pipeline/types";
+import { sourceTypeOptions, verificationOptions } from "../lib/evidence-labels";
 
 /**
  * Shared fields for every public record (deaths, elephants, rescues, facts…).
@@ -8,26 +8,8 @@ import { SOURCE_TYPES, VERIFICATION } from "../pipeline/types";
  *
  * Project rule 2: every figure, claim and story carries two labels and at least one source.
  * These are enforced on publish, not on draft, so editors can save work in progress.
+ * Option values and labels come from lib/evidence-labels.ts, shared with the public chips.
  */
-
-const SOURCE_TYPE_OPTIONS = [
-  { label: "Official", value: "official" },
-  { label: "Court record", value: "court_record" },
-  { label: "Academic", value: "academic" },
-  { label: "News", value: "news" },
-  { label: "Organisation", value: "organisation" },
-  { label: "Community", value: "community" },
-  { label: "Social media", value: "social_media" },
-  { label: "Unverified", value: "unverified" },
-] satisfies { label: string; value: (typeof SOURCE_TYPES)[number] }[];
-
-const VERIFICATION_OPTIONS = [
-  { label: "Verified", value: "verified" },
-  { label: "Reported by multiple outlets", value: "multiple_outlets" },
-  { label: "Single source", value: "single_source" },
-  { label: "Disputed", value: "disputed" },
-  { label: "Unverified", value: "unverified" },
-] satisfies { label: string; value: (typeof VERIFICATION)[number] }[];
 
 const isPublishing = (data: Record<string, unknown> | undefined) => data?._status === "published";
 
@@ -41,7 +23,7 @@ export const labelFields = (): Field[] => [
       {
         name: "sourceType",
         type: "select",
-        options: SOURCE_TYPE_OPTIONS,
+        options: sourceTypeOptions(),
         admin: { width: "50%", description: "The strongest source type among this record's sources" },
         validate: (v: unknown, { data }: { data: Record<string, unknown> }) =>
           !isPublishing(data) || !!v || "Choose a source type before publishing",
@@ -49,7 +31,7 @@ export const labelFields = (): Field[] => [
       {
         name: "verificationStatus",
         type: "select",
-        options: VERIFICATION_OPTIONS,
+        options: verificationOptions(),
         access: { update: canSetVerified, create: canSetVerified },
         admin: { width: "50%", description: "Only a person may choose Verified" },
         validate: (v: unknown, { data }: { data: Record<string, unknown> }) =>
@@ -71,7 +53,8 @@ export const sourcesField = (): Field => ({
 
 /**
  * Per-language translation state (rule 6). "needs_review" = written by someone who is not a
- * native speaker (including AI); public pages show a small "translation under review" note.
+ * native speaker (including AI). Public pages show si/ta text only when "approved"; otherwise
+ * they show the English text with a TranslationNote (see src/i18n/fallback.ts).
  */
 export const translationReviewField = (): Field => ({
   name: "translationReview",

@@ -40,8 +40,9 @@ Model calls use your **Claude Pro/Max plan** through Claude Code (`claude` → `
 | `pnpm dev` | Dev server |
 | `pnpm ingest` | Run the pipeline (new batches, re-checks, promotions) |
 | `pnpm seed:districts` | Create the 25 districts (safe to re-run) |
-| `pnpm test:checks` | Unit tests for the fact-check rules |
-| `pnpm typecheck` | TypeScript check |
+| `pnpm test` | Unit tests (Vitest, no database). Runs in CI on every push |
+| `pnpm test:int` / `pnpm test:e2e` | Integration (needs `.env` database) / Playwright end-to-end |
+| `pnpm typecheck` / `pnpm lint` | TypeScript check / ESLint. Both run in CI |
 | `pnpm generate:types` | Regenerate `src/payload-types.ts` after changing collections |
 | `pnpm build` / `pnpm start` | Production build / serve |
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { LabelChips } from "@/components/LabelChips"; // Phase 0 component: shows the word, not colour alone
+import type { Messages } from "@/i18n/messages/en";
 
 /**
  * "Did you know?" flip card. Front: the fact. Back: where it came from + both labels.
@@ -15,7 +16,8 @@ export interface FactCardProps {
   sourceType: string;
   verification: string;
   source: { title: string; publisher?: string; date?: string; url?: string };
-  labels: { flip: string; back: string; source: string; share: string };
+  labels: Messages["fact"];
+  evidenceLabels: Messages["evidence"];
 }
 
 export function FactCard(p: FactCardProps) {
@@ -26,7 +28,7 @@ export function FactCard(p: FactCardProps) {
     <article className="fact-card card" data-flipped={flipped}>
       <div className="inner">
         <div className="face front" aria-hidden={flipped}>
-          <p className="text-xs uppercase tracking-wider text-sand">Did you know?</p>
+          <p className="text-xs uppercase tracking-wider text-sand">{p.labels.didYouKnow}</p>
           <p lang={p.statementLang} className="text-lg text-ivory">
             {p.statement}
           </p>
@@ -47,7 +49,7 @@ export function FactCard(p: FactCardProps) {
             )}
           </p>
           <p className="text-sm text-muted">{[p.source.publisher, p.source.date].filter(Boolean).join(" · ")}</p>
-          <LabelChips sourceType={p.sourceType} verification={p.verification} />
+          <LabelChips sourceType={p.sourceType} verification={p.verification} t={p.evidenceLabels} />
           <div className="mt-auto flex gap-4 text-sm">
             <button type="button" className="text-sage underline" onClick={() => setFlipped(false)}>
               {p.labels.back}

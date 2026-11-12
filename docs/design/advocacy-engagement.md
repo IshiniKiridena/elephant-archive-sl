@@ -30,7 +30,7 @@ The archive takes no side between people and elephants. It exists because protec
 | Contribute form | short, above the form | Sets expectations for submitters |
 | Share cards (images) | short, one line at the bottom | |
 
-**si / ta:** not written yet. Translate from the canonical English, then mark `needsNativeReview: true` until a native speaker approves (rule 6). Keep the meaning "does not take sides" literal; avoid words that read as "neutral about elephants dying".
+**si / ta:** not written yet. Translate from the canonical English, then mark it "Needs native review" (`translationReview.si` / `.ta` = `needs_review`) until a native speaker approves (rule 6). Until then the English text is shown with a "Shown in English" chip. Keep the meaning "does not take sides" literal; avoid words that read as "neutral about elephants dying".
 
 ---
 

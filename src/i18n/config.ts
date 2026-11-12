@@ -11,6 +11,9 @@ export const LOCALE_LABEL: Record<Locale, { short: string; name: string }> = {
   en: { short: "EN", name: "English" },
 };
 
+/** The same page in another language: localeHref("en", "/guide/tuskers") → "/en/guide/tuskers". */
+export const localeHref = (locale: Locale, path = "") => `/${locale}${path && !path.startsWith("/") ? `/${path}` : path}`;
+
 /** Pick a locale from Accept-Language: Sinhala or Tamil if the browser asks for them, else English. */
 export function negotiateLocale(acceptLanguage: string | null): Locale {
   if (!acceptLanguage) return DEFAULT_LOCALE;

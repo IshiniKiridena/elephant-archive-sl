@@ -136,10 +136,12 @@ export function runRules(r: ProposedRecord, ctx: RuleContext): Finding[] {
 
   // si / ta review (rule 6)
   if (textValues(r).some(([, t]) => SINHALA.test(t) || TAMIL.test(t)))
-    add("warn", "Contains Sinhala/Tamil text. Will be flagged needsNativeReview on promotion");
+    add("warn", "Contains Sinhala/Tamil text. Will be marked Needs native review (translationReview) on promotion");
 
   return out;
 }
 
 export const hasSinhalaOrTamil = (r: ProposedRecord) =>
   textValues(r).some(([, t]) => SINHALA.test(t) || TAMIL.test(t));
+export const hasSinhala = (r: ProposedRecord) => textValues(r).some(([, t]) => SINHALA.test(t));
+export const hasTamil = (r: ProposedRecord) => textValues(r).some(([, t]) => TAMIL.test(t));
