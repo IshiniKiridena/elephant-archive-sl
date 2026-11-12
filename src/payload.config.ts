@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { cloudStoragePlugin } from '@payloadcms/plugin-cloud-storage'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -13,9 +14,16 @@ import { CheckRuns } from './collections/CheckRuns'
 import { Sources } from './collections/Sources'
 import { Districts } from './collections/Districts'
 import { AuditLog } from './collections/AuditLog'
+import { cloudinaryAdapter } from './storage/cloudinary-adapter'
+import { cloudinaryFromEnv } from './storage/cloudinary-env'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+// Uploads go to Cloudinary when CLOUDINARY_* are set; otherwise to local disk (dev, CI).
+// Throws if the env is half-set, or unset on Vercel (see cloudinary-env.ts).
+const cloudinaryEnv = cloudinaryFromEnv()
+const cloudName = cloudinaryEnv?.cloudName ?? ''
 
 export default buildConfig({
   admin: {
@@ -61,5 +69,24 @@ export default buildConfig({
     },
   }),
   sharp,
-  plugins: [],
+  plugins: [
+    cloudStoragePlugin({
+      enabled: !!cloudinaryEnv,
+      // Same schema with and without Cloudinary, so local and production databases match.
+      alwaysInsertFields: true,
+      collections: {
+        // Public: served straight from Cloudinary (no Vercel bandwidth or image optimisation)
+        media: {
+          adapter: cloudinaryAdapter({ delivery: 'public', folder: 'media', cloudName }),
+          disableLocalStorage: true,
+          disablePayloadAccessControl: true,
+        },
+        // Private: only through /api/intake-files/:id/signed-url or the file route, admins only
+        'intake-files': {
+          adapter: cloudinaryAdapter({ delivery: 'private', folder: 'intake', cloudName }),
+          disableLocalStorage: true,
+        },
+      },
+    }),
+  ],
 })

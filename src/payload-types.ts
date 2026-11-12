@@ -223,6 +223,11 @@ export interface Media {
     si?: ('missing' | 'needs_review' | 'approved') | null;
     ta?: ('missing' | 'needs_review' | 'approved') | null;
   };
+  cloudinaryPublicId?: string | null;
+  cloudinaryResourceType?: string | null;
+  cloudinaryFormat?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -235,24 +240,6 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
-  sizes?: {
-    card?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    wide?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -339,6 +326,11 @@ export interface IntakeBatch {
  */
 export interface IntakeFile {
   id: number;
+  cloudinaryPublicId?: string | null;
+  cloudinaryResourceType?: string | null;
+  cloudinaryFormat?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -701,6 +693,11 @@ export interface MediaSelect<T extends boolean = true> {
         si?: T;
         ta?: T;
       };
+  cloudinaryPublicId?: T;
+  cloudinaryResourceType?: T;
+  cloudinaryFormat?: T;
+  prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -713,30 +710,6 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
-  sizes?:
-    | T
-    | {
-        card?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        wide?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -783,6 +756,11 @@ export interface IntakeBatchesSelect<T extends boolean = true> {
  * via the `definition` "intake-files_select".
  */
 export interface IntakeFilesSelect<T extends boolean = true> {
+  cloudinaryPublicId?: T;
+  cloudinaryResourceType?: T;
+  cloudinaryFormat?: T;
+  prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
