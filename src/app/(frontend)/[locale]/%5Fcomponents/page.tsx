@@ -154,6 +154,7 @@ export default async function ComponentPreview({ params }: { params: Promise<{ l
         <h1 className="text-3xl font-bold text-ivory">Component preview</h1>
         <p className="text-sm text-sand">Dev only. Not in production builds, not indexed. All example data is fake.</p>
         <nav aria-label="Components" className="flex flex-wrap gap-x-4 text-sm">
+          <a href="#logos">Logos</a>
           <a href="#header-bright">SiteHeader + MegaMenu</a>
           <a href="#footer-bright">Footer</a>
           <a href="#bright-zone">LabelChips</a>
@@ -165,6 +166,17 @@ export default async function ComponentPreview({ params }: { params: Promise<{ l
           <a href="#toc-quiet">PageToc + ReadMore (Quiet)</a>
         </nav>
       </header>
+
+      <section aria-labelledby="logos" className="flex flex-col gap-6">
+        <h2 id="logos" className="text-2xl font-bold text-ivory">
+          Logos
+        </h2>
+        <p className="text-sm text-muted">
+          Every file in public/brand on the three backgrounds it may sit on (design/logos.md). Logos never animate. The badge is for app icons only,
+          never the header.
+        </p>
+        <LogoBackgrounds />
+      </section>
 
       <section aria-labelledby="header-bright" className="flex flex-col gap-6">
         <h2 id="header-bright" className="text-2xl font-bold text-ivory">
@@ -301,6 +313,54 @@ export default async function ComponentPreview({ params }: { params: Promise<{ l
         ))}
       </div>
     </main>
+  );
+}
+
+const BRAND_FILES = [
+  { file: "logo-horizontal.svg", use: "Header from md up, footer", h: "h-10" },
+  { file: "logo-stacked.svg", use: "Header below md, social image", h: "h-14" },
+  { file: "logo-mark.svg", use: "Source of the simplified mark", h: "h-16" },
+  { file: "logo-mark-simple.svg", use: "Favicon (on its Canopy tile)", h: "h-16" },
+  { file: "badge.svg", use: "App icons only, never the header", h: "h-24" },
+];
+const BACKGROUNDS = [
+  { name: "Canopy", className: "bg-canopy" },
+  { name: "Umber", className: "bg-umber" },
+  { name: "Surface", className: "bg-surface" },
+];
+
+/** Each logo on Canopy, Umber and Surface, then the favicon at the sizes browsers draw it. */
+function LogoBackgrounds() {
+  return (
+    <div className="flex flex-col gap-4">
+      {BRAND_FILES.map(({ file, use, h }) => (
+        <div key={file} className="flex flex-col gap-2">
+          <h3 className="text-sm font-semibold text-sand">
+            {file} <span className="font-normal text-muted">· {use}</span>
+          </h3>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] gap-2">
+            {BACKGROUNDS.map((bg) => (
+              <figure key={bg.name} data-logo="" className={`m-0 flex flex-col items-center gap-3 rounded-card border border-sand/20 p-5 ${bg.className}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element -- dev preview of the static SVG */}
+                <img src={`/brand/${file}`} alt="" className={`block w-auto max-w-full ${h}`} />
+                <figcaption className="text-xs text-muted">{bg.name}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      ))}
+      <div className="flex flex-col gap-2">
+        <h3 className="text-sm font-semibold text-sand">
+          Favicon (src/app/icon.svg) <span className="font-normal text-muted">· actual size, 16 and 32 px</span>
+        </h3>
+        <div data-logo="" className="flex items-end gap-6 rounded-card border border-sand/20 bg-canopy p-5">
+          {[16, 32].map((px) => (
+            // eslint-disable-next-line @next/next/no-img-element -- dev preview of the favicon at real size
+            <img key={px} src="/icon.svg" alt="" width={px} height={px} className="block" />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 

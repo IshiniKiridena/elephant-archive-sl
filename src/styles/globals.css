@@ -108,6 +108,14 @@
     color: var(--color-canopy);
   }
 
+  /* Logos never animate, in either zone (design/logos.md). BrandLogo sets data-logo. */
+  [data-logo],
+  [data-logo] * {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+
   /* Secondary action next to .btn-primary: outline only, colour change on hover (Quiet-safe) */
   .btn-ghost {
     background: transparent;

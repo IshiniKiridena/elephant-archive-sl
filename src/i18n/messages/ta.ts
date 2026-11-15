@@ -84,8 +84,8 @@ export const ta: Messages = {
     methodLink: "சான்றுகளை நாங்கள் எவ்வாறு குறிக்கிறோம்", // TODO(ta-review)
     correctionLink: "விடுபட்ட பதிவு அல்லது திருத்தத்தைத் தெரிவிக்கவும்", // TODO(ta-review)
   },
-  header: {
-    home: "Elephant Archive Sri Lanka, முகப்பு", // TODO(ta-review): brand name kept in English, as in siteName
+  brand: {
+    logoAlt: "Elephant Archive Sri Lanka", // TODO(ta-review): the logo's words are English, so its alt text is too; confirm, or give the Tamil form if one is wanted (see siteName)
   },
   menu: {
     close: "பட்டியை மூடு", // TODO(ta-review)

@@ -20,7 +20,9 @@
     "test:all": "pnpm run test && pnpm run test:int && pnpm run test:e2e",
     "ingest": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/ingest.ts",
     "typecheck": "tsc --noEmit",
-    "seed:districts": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/seed-districts.ts"
+    "seed:districts": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/seed-districts.ts",
+    "brand:svg": "svgo --config svgo.config.mjs --folder public/brand",
+    "brand:icons": "tsx scripts/brand-assets.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.92.1",
@@ -56,6 +58,7 @@
     "eslint-config-next": "16.3.3",
     "jsdom": "28.0.0",
     "prettier": "^3.4.2",
+    "svgo": "4.1.0",
     "tsx": "4.23.15",
     "typescript": "5.7.3",
     "vite-tsconfig-paths": "6.0.5",
