@@ -154,4 +154,68 @@ export const ta: Messages = {
     shownInEnglish: "ஆங்கிலத்தில் காட்டப்படுகிறது", // TODO(ta-review)
     reviewed: "தமிழைத் தாய்மொழியாகக் கொண்ட ஒருவரால் மொழிபெயர்ப்பு மதிப்பாய்வு செய்யப்பட்டது", // TODO(ta-review)
   },
+  sourcePage: {
+    breadcrumb: "வழிச்சுவடு", // TODO(ta-review)
+    home: "முகப்பு", // TODO(ta-review)
+    eyebrow: "மூலம்", // TODO(ta-review)
+    language: "மொழி", // TODO(ta-review)
+    languageName: {
+      si: "சிங்களம்", // TODO(ta-review)
+      ta: "தமிழ்", // TODO(ta-review)
+      en: "ஆங்கிலம்", // TODO(ta-review)
+      other: "வேறு மொழி", // TODO(ta-review)
+    },
+    live: "கடைசியாகச் சரிபார்த்தபோது பக்கம் இயங்கிக்கொண்டிருந்தது.", // TODO(ta-review)
+    lastChecked: "கடைசியாகச் சரிபார்த்தது", // TODO(ta-review)
+    copyCitation: "மேற்கோளை நகலெடுக்கவும்", // TODO(ta-review)
+    citationCopied: "மேற்கோள் நகலெடுக்கப்பட்டது", // TODO(ta-review)
+    labelsHeading: "இந்த மூலத்தின் குறிச்சொற்களின் பொருள்", // TODO(ta-review)
+    sourceTypeHeading: "மூல வகை", // TODO(ta-review)
+    verificationHeading: "எந்த அளவு சரிபார்க்கப்பட்டது", // TODO(ta-review)
+    sourceTypeText: {
+      official: "அமைச்சு, திணைக்களம் அல்லது பொலிஸ் போன்ற அரசு அமைப்பு தன் சொந்தப் பெயரில் வெளியிட்டது.", // TODO(ta-review)
+      court_record: "நீதிமன்றத்தின் மனு, உத்தரவு அல்லது தீர்ப்பு. நீதிமன்றம் குற்றவாளி எனத் தீர்ப்பளிக்கும் வரை வழக்குகள் குற்றம் சாட்டப்பட்டவை என்றே விவரிக்கப்படுகின்றன.", // TODO(ta-review) TODO(lawyer-review)
+      academic: "சக மதிப்பாய்வு செய்யப்பட்ட ஆய்வுக் கட்டுரை, ஆய்வேடு அல்லது ஆய்வு அறிக்கை.", // TODO(ta-review)
+      news: "செய்தி நிறுவனம் அறிவித்தது. அது அதிகாரிகளையோ சாட்சிகளையோ மேற்கோள் காட்டியிருக்கலாம்.", // TODO(ta-review)
+      organisation: "பாதுகாப்புக் குழு, அரசு சாரா நிறுவனம் அல்லது வேறு அமைப்பு வெளியிட்டது.", // TODO(ta-review)
+      community: "நேரடி அனுபவம் உள்ள ஒருவரின் விவரணை, ஒப்புதலுடன் பகிரப்பட்டது.", // TODO(ta-review)
+      social_media: "சமூக ஊடகப் பதிவு. பிற மூலங்கள் உறுதிப்படுத்தும் வரை எச்சரிக்கையுடன் கையாளப்படுகிறது.", // TODO(ta-review)
+      unverified: "இதை யார் வெளியிட்டார்கள், அது எவ்வளவு நம்பகமானது என்பதை எங்களால் கண்டறிய முடியவில்லை.", // TODO(ta-review)
+    },
+    verificationText: {
+      verified: "மூல ஆவணங்கள் அல்லது சுயாதீன மூலங்களுடன் எங்கள் பதிப்பாசிரியர்களால் சரிபார்க்கப்பட்டது.", // TODO(ta-review)
+      multiple_outlets: "ஒன்றுக்கு மேற்பட்ட சுயாதீன ஊடகங்கள் ஒரே விஷயத்தை அறிவிக்கின்றன.", // TODO(ta-review)
+      single_source: "இதுவரை இந்த மூலம் மட்டுமே இதை அறிவிக்கிறது. இது சரியாக இருக்கலாம், ஆனால் இன்னும் வேறு யாரும் உறுதிப்படுத்தவில்லை.", // TODO(ta-review)
+      disputed: "பிற மூலங்கள் இதனுடன் உடன்படவில்லை. இதை மேற்கோள் காட்டும் பதிவுகள் ஒவ்வொரு பதிப்பையும் அருகருகே காட்டுகின்றன.", // TODO(ta-review)
+      unverified: "இன்னும் சரிபார்க்கப்படவில்லை. எச்சரிக்கையுடன் கையாளவும்.", // TODO(ta-review)
+    },
+    methodLink: "சான்றுகளை நாங்கள் எவ்வாறு குறிக்கிறோம்", // TODO(ta-review)
+    recordsHeading: "இந்த மூலத்தை மேற்கோள் காட்டும் பதிவுகள்", // TODO(ta-review)
+    recordsNote: "ஒவ்வொரு பதிவும் தன் சொந்தக் குறிச்சொற்களைக் கொண்டுள்ளது.", // TODO(ta-review)
+    noRecords: "வெளியிடப்பட்ட எந்தப் பதிவும் இன்னும் இந்த மூலத்தை மேற்கோள் காட்டவில்லை.", // TODO(ta-review)
+    copyright: "மூலங்களுக்கு இணைப்புகளைத் தந்து அவற்றை எங்கள் சொந்த வார்த்தைகளில் விவரிக்கிறோம். கட்டுரைகளை நகலெடுப்பதில்லை; எந்த மேற்கோளும் சுருக்கமாகவே இருக்கும்.", // TODO(ta-review)
+    detailsHeading: "விவரங்கள்", // TODO(ta-review)
+    detailsLabel: "மூல விவரங்கள்", // TODO(ta-review)
+    publisher: "வெளியீட்டாளர்", // TODO(ta-review)
+    verification: "சரிபார்ப்பு", // TODO(ta-review)
+    link: "இணைப்பு", // TODO(ta-review)
+    linkLabel: {
+      live: "இயங்குகிறது", // TODO(ta-review)
+      corrected: "வெளியீட்டாளரால் திருத்தப்பட்டது", // TODO(ta-review)
+      unreachable: "அணுக முடியவில்லை", // TODO(ta-review)
+      removed: "வெளியீட்டாளரால் நீக்கப்பட்டது", // TODO(ta-review)
+    },
+    archivedCopy: "காப்பகப் பிரதி", // TODO(ta-review)
+    none: "இல்லை", // TODO(ta-review)
+    citeHeading: "இந்த மூலத்தை மேற்கோள் காட்டவும்", // TODO(ta-review)
+    accessed: "அணுகியது", // TODO(ta-review)
+    wrongHeading: "ஏதாவது தவறா?", // TODO(ta-review)
+    wrongBody: "இந்த மூலம் தவறாக விவரிக்கப்பட்டிருந்தால், அதன் இணைப்பு உடைந்திருந்தால், அல்லது சிறந்த மூலம் உங்களுக்குத் தெரிந்தால் எங்களிடம் சொல்லுங்கள். ஒவ்வொரு திருத்தத்தையும் மனிதர்கள் மதிப்பாய்வு செய்கிறார்கள்.", // TODO(ta-review)
+    reportCorrection: "திருத்தத்தைத் தெரிவிக்கவும்", // TODO(ta-review)
+  },
+  preview: {
+    banner: "வரைவு முன்னோட்டம்", // TODO(ta-review)
+    body: "வெளியிடப்படாத மாற்றங்களைப் பார்க்கிறீர்கள். பார்வையாளர்களுக்கு இது தெரியாது.", // TODO(ta-review)
+    exit: "முன்னோட்டத்திலிருந்து வெளியேறு", // TODO(ta-review)
+  },
 };

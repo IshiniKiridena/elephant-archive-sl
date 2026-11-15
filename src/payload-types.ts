@@ -144,6 +144,10 @@ export interface Source {
    */
   title: string;
   /**
+   * Web address: /sources/<slug>. Filled from the title when empty (Sinhala and Tamil titles get "source"). Changing it on a published source changes its public link.
+   */
+  slug?: string | null;
+  /**
    * Outlet, agency, court or account
    */
   publisher?: string | null;
@@ -659,6 +663,7 @@ export interface PayloadMigration {
  */
 export interface SourcesSelect<T extends boolean = true> {
   title?: T;
+  slug?: T;
   publisher?: T;
   date?: T;
   url?: T;
