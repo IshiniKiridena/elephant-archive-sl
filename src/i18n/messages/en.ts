@@ -69,8 +69,9 @@ export const en = {
     methodLink: "How we label evidence",
     correctionLink: "Report a missing record or correction",
   },
-  header: {
-    home: "Elephant Archive Sri Lanka, home",
+  // Alt text of the logo in the header and footer: the words the logo shows
+  brand: {
+    logoAlt: "Elephant Archive Sri Lanka",
   },
   menu: {
     close: "Close menu",

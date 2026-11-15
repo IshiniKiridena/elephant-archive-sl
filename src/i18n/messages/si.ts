@@ -84,8 +84,8 @@ export const si: Messages = {
     methodLink: "අපි සාක්ෂි ලේබල් කරන ආකාරය", // TODO(si-review)
     correctionLink: "අතුරුදහන් වාර්තාවක් හෝ නිවැරදි කිරීමක් වාර්තා කරන්න", // TODO(si-review)
   },
-  header: {
-    home: "Elephant Archive Sri Lanka, මුල් පිටුව", // TODO(si-review): brand name kept in English, as in siteName
+  brand: {
+    logoAlt: "Elephant Archive Sri Lanka", // TODO(si-review): the logo's words are English, so its alt text is too; confirm, or give the Sinhala form if one is wanted (see siteName)
   },
   menu: {
     close: "මෙනුව වසන්න", // TODO(si-review)

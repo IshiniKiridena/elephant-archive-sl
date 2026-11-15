@@ -20,10 +20,9 @@ describe("Footer", () => {
     expect(render("en")).toMatch(/^<footer lang="en" class="[^"]*\bbg-umber\b/);
   });
 
-  it("shows the horizontal logo, never the badge", () => {
-    const html = render("en");
-    expect(html).toContain('src="/brand/logo-horizontal.svg"');
-    expect(html).toContain(`alt="${text(getMessages("en").siteName)}"`);
+  it.each(LOCALES)("in %s: shows the horizontal logo, linked home, never the badge", (locale) => {
+    const html = render(locale);
+    expect(html).toMatch(new RegExp(`<a href="/${locale}" data-logo=""[^>]*><img src="/brand/logo-horizontal.svg" alt="${text(getMessages(locale).brand.logoAlt)}"`));
     expect(html).not.toMatch(/badge/i);
   });
 

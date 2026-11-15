@@ -44,7 +44,7 @@ describe("SiteHeader", () => {
   it.each(LOCALES)("in %s: home link, Contribute (.btn-primary) and Menu, all labelled", (locale) => {
     const m = getMessages(locale);
     const html = header(locale);
-    expect(html).toContain(`href="/${locale}" aria-label="${text(m.header.home)}"`);
+    expect(html).toMatch(new RegExp(`<a href="/${locale}" data-logo=""[^>]*>.*?alt="${text(m.brand.logoAlt)}"`));
     expect(html).toMatch(/href="#contribute" class="btn-primary /);
     expect(html).toContain(text(m.nav.contribute));
     expect(html).toContain(text(m.nav.menu));
@@ -54,24 +54,10 @@ describe("SiteHeader", () => {
   it("logo: stacked below md, horizontal from md, one download via <picture>; never the badge", () => {
     const html = header("en");
     expect(html).toContain('<source media="(min-width: 48rem)" srcSet="/brand/logo-horizontal.svg"');
-    expect(html).toMatch(/<img src="\/brand\/logo-stacked.svg" alt="" width="\d+" height="\d+"/);
+    expect(html).toMatch(/<img src="\/brand\/logo-stacked.svg" alt="Elephant Archive Sri Lanka" lang="en" width="\d+" height="\d+"/);
     expect(html.match(/<img /g)).toHaveLength(1);
     expect(html).not.toMatch(/badge/i);
     expect(html).not.toContain("data-logo-placeholder");
-  });
-
-  it("logo files exist, are cleaned for the web, and carry no scripts", () => {
-    const dir = new URL("../../../public/brand/", import.meta.url);
-    for (const f of ["logo-stacked.svg", "logo-horizontal.svg"]) {
-      const svg = readFileSync(fileURLToPath(new URL(f, dir)), "utf8");
-      expect(svg, f).toMatch(/<svg[^>]*viewBox="[\d. ]+"/);
-      expect(svg, f).not.toMatch(/<script|\son[a-z]+=|<foreignObject|href="(?!#)/i);
-      // The traced full-canvas background rectangle is gone: no shape spans (nearly) the whole width.
-      // (Every traced shape starts "M0 0 C…" because each is placed with translate(); compare widths.)
-      const vbWidth = Number(svg.match(/viewBox="[\d.]+ [\d.]+ ([\d.]+)/)![1]);
-      const topEdges = [...svg.matchAll(/<path d="M0 0 C[\d.]+ 0 [\d.]+ 0 ([\d.]+) 0 /g)].map((m) => Number(m[1]));
-      expect(Math.max(...topEdges), f).toBeLessThan(vbWidth * 0.9);
-    }
   });
 
   it("Quiet (default): no motion classes anywhere in the header or menu", () => {

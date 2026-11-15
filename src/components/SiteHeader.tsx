@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/BrandLogo";
 import { MegaMenu } from "@/components/MegaMenu";
 import { LOCALES, LOCALE_LABEL, localeHref, type Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/get-messages";
@@ -6,7 +7,7 @@ import { getMessages } from "@/i18n/get-messages";
  * Site header (ui-inspiration §1, §3, §6): logo · language switcher · Contribute · Menu.
  * Server component; the only client JS is the menu's open/close shell (MegaMenuDialog).
  *
- * - Logo: stacked lockup below md, horizontal from md up (public/brand). Never the badge here.
+ * - Logo: BrandLogo "header" (stacked lockup below md, horizontal from md up). Never the badge here.
  * - Language switcher: same page, only the /si /ta /en prefix changes. Pages are static, so the
  *   header can't read the URL itself: pass `path`, the current path without its locale prefix
  *   ("" for home, "/deaths/2024" …). The current language carries aria-current="page".
@@ -30,9 +31,7 @@ export function SiteHeader({ locale, path, zone = "quiet", contributeHref = "#co
   return (
     <header lang={locale} className={`${sticky ? "sticky top-0 z-10 " : ""}border-b border-sand/20 bg-canopy`}>
       <div className="mx-auto flex max-w-[1240px] items-center gap-1 px-4 py-3 sm:gap-3 md:gap-5 md:px-6">
-        <a href={localeHref(locale)} aria-label={m.header.home} className="me-auto shrink-0 no-underline">
-          <Logo />
-        </a>
+        <BrandLogo locale={locale} variant="header" className="me-auto" />
         <LanguageSwitcher locale={locale} path={path} label={m.nav.language} />
         {/* Icon-only below sm; below 360px it gives way (Contribute / Correct stays in the menu) */}
         <a
@@ -76,34 +75,5 @@ function LanguageSwitcher({ locale, path, label }: { locale: Locale; path: strin
         })}
       </ul>
     </nav>
-  );
-}
-
-/**
- * Logo lockups: stacked below md, horizontal from md up. Never the badge here.
- * public/brand/*.svg are web copies (traced background removed, cropped to the artwork); the
- * untouched originals are in design/brand-source/.
- * <picture> so each visitor downloads one file. Fixed px heights so the logo stays the same size on
- * si/ta pages, where rem is 6% larger: 34px tall ≈ 110px wide, which is what fits at 360px.
- * alt="": the link around it carries the name ("Elephant Archive Sri Lanka, home").
- */
-const LOGO = {
-  stacked: { src: "/brand/logo-stacked.svg", width: 1086, height: 336 },
-  horizontal: { src: "/brand/logo-horizontal.svg", width: 1569, height: 280 },
-};
-
-function Logo() {
-  return (
-    <picture>
-      <source media="(min-width: 48rem)" srcSet={LOGO.horizontal.src} width={LOGO.horizontal.width} height={LOGO.horizontal.height} />
-      <img
-        src={LOGO.stacked.src}
-        alt=""
-        width={LOGO.stacked.width}
-        height={LOGO.stacked.height}
-        decoding="async"
-        className="block h-[34px] w-auto md:h-[40px]"
-      />
-    </picture>
   );
 }

@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/BrandLogo";
 import { LegalNotice } from "@/components/LegalNotice";
 import { MENU_SECONDARY } from "@/components/MegaMenu";
 import { PurposeStatement } from "@/components/advocacy/PurposeStatement";
@@ -9,14 +10,13 @@ import { getMessages } from "@/i18n/get-messages";
  * no animation in either zone: hover changes colour only.
  *
  * - Umber background: Umber is the footer's brand colour (palette rule 5).
- * - Horizontal logo, never the badge (the badge appears in the design here; the logo rule wins).
+ * - Horizontal logo (BrandLogo "footer"), linked home; never the badge (the badge appears in the design
+ *   here; the logo rule wins).
  * - Purpose line: PurposeStatement "short" (advocacy-engagement §0). Its si/ta text is not written
  *   yet on purpose, so it shows in English with a "Shown in English" chip until approved.
  * - Legal line: LegalNotice "short". Links: MENU_SECONDARY, shared with the menu.
  * - Language links: same page in each language, like the header. Pass `path` (no locale prefix).
  */
-
-const LOGO = { src: "/brand/logo-horizontal.svg", width: 1569, height: 280 };
 
 export function Footer({ locale, path }: { locale: Locale; path: string }) {
   const m = getMessages(locale);
@@ -25,9 +25,7 @@ export function Footer({ locale, path }: { locale: Locale; path: string }) {
     <footer lang={locale} className="border-t border-sand/20 bg-umber">
       <div className="mx-auto flex max-w-[1240px] flex-wrap gap-x-10 gap-y-8 px-4 pb-8 pt-12 md:px-6">
         <div className="flex min-w-0 flex-[1_1_17.5rem] flex-col gap-3.5">
-          {/* Fixed px height: same size on si/ta pages, where rem is 6% larger */}
-          {/* eslint-disable-next-line @next/next/no-img-element -- static SVG; no Vercel image optimisation (CLAUDE.md) */}
-          <img src={LOGO.src} alt={m.siteName} width={LOGO.width} height={LOGO.height} loading="lazy" decoding="async" className="block h-[36px] w-auto self-start" />
+          <BrandLogo locale={locale} variant="footer" className="self-start" />
           <div className="max-w-[36ch]">
             <PurposeStatement locale={locale} variant="short" shownInEnglish={m.translation.shownInEnglish} />
           </div>
