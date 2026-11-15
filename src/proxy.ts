@@ -14,6 +14,6 @@ export function proxy(req: NextRequest) {
 }
 
 export const config = {
-  // Skip Payload admin + API, share-card images, Next internals and static files
-  matcher: ["/((?!admin|api|share-card|_next|favicon.ico|icon|apple-icon|brand|icons|fonts|robots.txt|sitemap.xml|.*\\.[a-z0-9]+$).*)"],
+  // Skip Payload admin + API, draft preview on/off (/next/…), share-card images, Next internals and static files
+  matcher: ["/((?!admin|api|next/|share-card|_next|favicon.ico|icon|apple-icon|brand|icons|fonts|robots.txt|sitemap.xml|.*\\.[a-z0-9]+$).*)"],
 };

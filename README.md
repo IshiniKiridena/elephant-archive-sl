@@ -71,5 +71,6 @@ templates/                          CSV templates for offline ingest
 - [x] Pipeline round 3: approved candidates become linked drafts (tested with Sources)
 - [ ] Base components: SiteHeader, MegaMenu, SourcesPanel, DataLimits, LegalNotice, PageToc, ReadMore
 - [x] Cloudinary: public media (f_auto,q_auto) and private intake files (admin-only signed links), EXIF/GPS stripped
-- [ ] Revalidation hook, nightly backup, favicons/PWA icons
+- [x] Draft preview (staff only), revalidate on publish, public Source page (/si|ta|en/sources/<slug>)
+- [ ] Nightly backup, favicons/PWA icons
 - [ ] Exit check: one real article → three check rounds → two approvals → draft renders in si/ta/en

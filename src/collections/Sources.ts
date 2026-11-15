@@ -1,8 +1,35 @@
 import { auditChange, auditDelete } from "./AuditLog";
-import type { CollectionConfig } from "payload";
+import type { CollectionConfig, FieldHook } from "payload";
 import { adminsOnly, staff } from "../access/roles";
 import { labelFields, publishedOrStaff } from "../fields/evidence";
 import { looseDateField } from "../fields/looseDate";
+import { revalidateOnPublish } from "../hooks/revalidateOnPublish";
+import { previewUrl } from "../lib/preview";
+import { SLUG_MAX, SLUG_PATTERN, slugify, uniqueSlug } from "../lib/slug";
+
+/** Public pages that show a source: its own page and (later) the Data & Sources listing, in si/ta/en. */
+const revalidate = revalidateOnPublish<{ id: number | string; slug?: string | null }>({
+  paths: (d) => [d.slug && `/sources/${d.slug}`, "/sources"],
+  tags: ["sources"],
+});
+
+/** Fills an empty slug from the title, normalises a typed one, and adds -2, -3… if it's taken. */
+const fillSlug: FieldHook = async ({ value, data, originalDoc, req }) => {
+  const typed = typeof value === "string" && value.trim() ? value : null;
+  // A partial update that doesn't send the slug keeps the existing one (never regenerated from a new title)
+  if (!typed && originalDoc?.slug) return originalDoc.slug;
+  const base = slugify(typed ?? data?.title ?? originalDoc?.title, "source");
+  const id = originalDoc?.id ?? data?.id;
+  return uniqueSlug(base, async (slug) => {
+    const { totalDocs } = await req.payload.count({
+      collection: "sources",
+      where: id ? { and: [{ slug: { equals: slug } }, { id: { not_equals: id } }] } : { slug: { equals: slug } },
+      overrideAccess: true,
+      req,
+    });
+    return totalDocs > 0;
+  });
+};
 
 /**
  * One row per article, document, post, court record or report the archive relies on.
@@ -17,12 +44,33 @@ export const Sources: CollectionConfig = {
     defaultColumns: ["title", "publisher", "date", "sourceType", "_status"],
     group: "Archive",
     description: "Articles, documents, posts and records the archive cites. Titles and links only, never copied text.",
+    // Payload's Preview button: opens /<admin locale>/sources/<slug> in draft mode (staff only, see lib/preview.ts)
+    preview: (doc, { locale }) => (typeof doc.slug === "string" && doc.slug ? previewUrl(`/sources/${doc.slug}`, locale) : null),
   },
-  hooks: { afterChange: [auditChange], afterDelete: [auditDelete] },
+  hooks: {
+    beforeChange: [revalidate.beforeChange],
+    afterChange: [auditChange, revalidate.afterChange],
+    afterDelete: [auditDelete, revalidate.afterDelete],
+  },
   versions: { drafts: true },
   access: { read: publishedOrStaff, create: staff, update: staff, delete: adminsOnly },
   fields: [
     { name: "title", type: "text", required: true, admin: { description: "Title as published, in its original language" } },
+    {
+      name: "slug",
+      type: "text",
+      unique: true,
+      index: true,
+      maxLength: SLUG_MAX,
+      admin: {
+        position: "sidebar",
+        description:
+          "Web address: /sources/<slug>. Filled from the title when empty (Sinhala and Tamil titles get \"source\"). Changing it on a published source changes its public link.",
+      },
+      hooks: { beforeValidate: [fillSlug] },
+      validate: (v: unknown, { data }: { data: Record<string, unknown> }) =>
+        (v ? SLUG_PATTERN.test(String(v)) : data?._status !== "published") || "Lowercase letters, numbers and hyphens only (needed before publishing)",
+    },
     {
       type: "row",
       fields: [

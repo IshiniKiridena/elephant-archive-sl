@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
+import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import { Noto_Sans, Noto_Sans_Sinhala, Noto_Sans_Tamil } from "next/font/google";
 import type { ReactNode } from "react";
 import { LOCALES, isLocale } from "@/i18n/config";
 import { getMessages } from "@/i18n/get-messages";
-import { PurposeStatement } from "@/components/advocacy/PurposeStatement";
+import { DraftPreviewBanner } from "@/components/DraftPreviewBanner";
 import "@/styles/globals.css";
 import "@/styles/advocacy.css";
 
 /*
- * Root layout for the public site. Static: no headers() or cookies() here.
+ * Root layout for the public site. Static: no headers() or cookies() here. draftMode() is fine: it
+ * keeps pages static and only renders per request while a staff member has draft preview on.
+ * Pages render SiteHeader and Footer themselves, because both need the page's path.
  * Fonts are self-hosted by next/font at build time (no request to Google from visitors).
  * Sinhala/Tamil load only the glyph subsets they need; `display: swap` keeps text visible.
  */
@@ -37,7 +40,7 @@ const SAVE_DATA_SCRIPT = `try{if(navigator.connection&&navigator.connection.save
 export default async function LocaleLayout({ children, params }: { children: ReactNode; params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const t = getMessages(locale);
+  const { isEnabled: preview } = await draftMode();
 
   return (
     <html lang={locale} className={`${latin.variable} ${sinhala.variable} ${tamil.variable}`}>
@@ -45,14 +48,8 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <script dangerouslySetInnerHTML={{ __html: SAVE_DATA_SCRIPT }} />
       </head>
       <body>
-        {/* SiteHeader (logo · language switcher · Contribute · Menu) arrives with the base components step */}
+        {preview && <DraftPreviewBanner locale={locale} />}
         {children}
-        <footer className="mt-16 bg-umber px-4 py-10">
-          <div className="mx-auto flex max-w-5xl flex-col gap-3">
-            <PurposeStatement locale={locale} variant="short" shownInEnglish={t.translation.shownInEnglish} />
-            <p className="text-sm text-muted">{t.footer.legal}</p>
-          </div>
-        </footer>
       </body>
     </html>
   );

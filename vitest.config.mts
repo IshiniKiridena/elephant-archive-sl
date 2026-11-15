@@ -21,6 +21,8 @@ export default defineConfig({
         test: {
           name: 'int',
           environment: 'jsdom',
+          // getPayload's first connection and schema check can take >10 s on a remote database
+          hookTimeout: 60_000,
           setupFiles: ['./vitest.setup.ts'],
           include: ['tests/int/**/*.int.spec.ts'],
         },
